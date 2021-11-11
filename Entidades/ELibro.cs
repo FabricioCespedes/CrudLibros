@@ -34,10 +34,10 @@ namespace Entidades
             this.existe = existe;
         }
 
-        public string ClaveLibro {get; set ;}
-        public string Titulo {get; set;}
-        public string ClaveAutor {get; set;}
-        public ECategoria ClaveCategoria {get; set;}
-        public bool Existe { get; set; }
+        public string ClaveLibro { get => claveLibro; set => claveLibro = value; }
+        public string Titulo { get => titulo; set => titulo = value; }
+        public string ClaveAutor { get => claveAutor; set => claveAutor = value; }
+        public ECategoria ClaveCategoria { get => claveCategoria; set => claveCategoria = value; }
+        public bool Existe { get => existe; set => existe = value; }
     }
 }

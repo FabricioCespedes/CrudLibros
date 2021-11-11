@@ -93,6 +93,7 @@ namespace CrudLibros
             this.txtClaveLibro.Name = "txtClaveLibro";
             this.txtClaveLibro.Size = new System.Drawing.Size(601, 32);
             this.txtClaveLibro.TabIndex = 4;
+            this.txtClaveLibro.Text = "LB001";
             // 
             // txtTituloLibro
             // 
@@ -101,6 +102,7 @@ namespace CrudLibros
             this.txtTituloLibro.Name = "txtTituloLibro";
             this.txtTituloLibro.Size = new System.Drawing.Size(601, 32);
             this.txtTituloLibro.TabIndex = 5;
+            this.txtTituloLibro.Text = "Otro libro";
             // 
             // txtClaveAutor
             // 
@@ -109,6 +111,7 @@ namespace CrudLibros
             this.txtClaveAutor.Name = "txtClaveAutor";
             this.txtClaveAutor.Size = new System.Drawing.Size(601, 32);
             this.txtClaveAutor.TabIndex = 6;
+            this.txtClaveAutor.Text = "A0023";
             // 
             // txtClaveCat
             // 
@@ -117,6 +120,7 @@ namespace CrudLibros
             this.txtClaveCat.Name = "txtClaveCat";
             this.txtClaveCat.Size = new System.Drawing.Size(601, 32);
             this.txtClaveCat.TabIndex = 7;
+            this.txtClaveCat.Text = "C0001";
             // 
             // btnNuevo
             // 

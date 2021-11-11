@@ -23,7 +23,7 @@ namespace Entidades
             this.descripcion = descripcion;
         }
 
-        public string ClaveCategoria { get; set;}
-        public string Descripcion { get; set;}
+        public string ClaveCategoria { get => claveCategoria; set => claveCategoria = value; }
+        public string Descripcion { get => descripcion; set => descripcion = value; }
     }
 }

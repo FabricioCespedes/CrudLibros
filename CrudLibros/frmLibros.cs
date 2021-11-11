@@ -23,7 +23,7 @@ namespace CrudLibros
 
         private void frmLibros_Load(object sender, EventArgs e)
         {
-
+            llenarDVG();
         }
 
         private void limpiar()
@@ -39,22 +39,22 @@ namespace CrudLibros
         {
             bool resultado= false;
             string msj = "";
-            if (!string.IsNullOrEmpty(txtClaveLibro.Text))
+            if (string.IsNullOrEmpty(txtClaveLibro.Text))
             {
                 msj = "Debe agregar una clave del libro";
                 txtClaveLibro.Focus();
             }
-            else if (!string.IsNullOrEmpty(txtTituloLibro.Text))
+            else if (string.IsNullOrEmpty(txtTituloLibro.Text))
             {
                 msj = "Debe agregar un título del libro";
                 txtTituloLibro.Focus();
             }
-            else if (!string.IsNullOrEmpty(txtClaveAutor.Text))
+            else if (string.IsNullOrEmpty(txtClaveAutor.Text))
             {
                 msj = "Debe agregar la clave del autor";
                 txtClaveAutor.Focus();
             }
-            else if (!string.IsNullOrEmpty(txtClaveCat.Text))
+            else if (string.IsNullOrEmpty(txtClaveCat.Text))
             {
                 msj = "Debe agregar la clave de la categoria";
                 txtClaveCat.Focus();
@@ -79,7 +79,7 @@ namespace CrudLibros
         private void btnGuardar_Click(object sender, EventArgs e)
         {
             ELibro libro;
-            LNLibro lnLibro= new LNLibro();
+            LNLibro lnLibro= new LNLibro(Config.getCadenaConexion);
             if (validarTextos())
             {
                 libro = new ELibro(txtClaveLibro.Text,txtTituloLibro.Text,txtClaveAutor.Text,categoria, false);
@@ -90,15 +90,63 @@ namespace CrudLibros
                     {
                         if (!lnLibro.claveLibroRepetida(libro.ClaveLibro))
                         {
+                            if (lnLibro.insertarLibro(libro) > 0 )
+                            {
+                                MessageBox.Show("Guardado con exito");
+                            }
+                            else
+                            {
 
+                            }
                         }
+                        else
+                        {
+                            MessageBox.Show("Clave de libro repetida");
+                            txtClaveLibro.Focus();
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Ese título ya existe para el autor indicado");
+                        txtTituloLibro.Focus();
                     }
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    mensajeError(ex);
                 }
             }
+
+        }
+
+        private void llenarDVG(string condicion = "")
+        {
+            DataSet dataSet;
+            LNLibro lnLibro = new LNLibro(Config.getCadenaConexion);
+
+            try
+            {
+                dataSet = lnLibro.listarTodos(condicion);
+              //  dataSet = lnLibro.listarTodos("titulo like %amor%");
+
+                dataGridView1.DataSource = dataSet.Tables[0];
+            }
+            catch (Exception ex)
+            {
+                mensajeError(ex);
+            }
+            dataGridView1.Columns[0].HeaderText = "Clave de libro";
+            dataGridView1.Columns[1].HeaderText = "Título";
+            dataGridView1.Columns[2].HeaderText = "Clave autor";
+            dataGridView1.Columns[3].HeaderText = "Clave categoria";
+
+           // dataGridView1.AutoResizeColumn(DataGridViewAutoSizeColumnsMode.DisplayedCells);
+        }
+
+
+        private void mensajeError(Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
         }
     }

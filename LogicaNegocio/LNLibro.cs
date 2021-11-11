@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Text;
 using AcessoDatos;
 using Entidades;
@@ -17,9 +18,9 @@ namespace LogicaNegocio
             cadConexion = string.Empty;
         }
 
-        public LNLibro(string mensaje, string cadConexion)
+        public LNLibro( string cadConexion)
         {
-            this.mensaje = mensaje;
+            this.mensaje = string.Empty;
             this.cadConexion = cadConexion;
         }
 
@@ -55,9 +56,47 @@ namespace LogicaNegocio
             catch (Exception ex)
             {
 
-                throw;
+                throw ex;
             }
             return result;
+        }
+
+        public int insertarLibro(ELibro libro)
+        {
+            int resultado;
+
+            ADLibro adLibro = new ADLibro(cadConexion);
+
+            try
+            {
+                resultado = adLibro.insertarLibro(libro);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+            return resultado;
+        }
+
+
+        public DataSet listarTodos(string condicion = "")
+        {
+            DataSet setLibros;
+
+            ADLibro adLibro = new ADLibro(cadConexion);
+
+            try
+            {
+                setLibros = listarTodos(condicion);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+            return setLibros;
         }
     }
 }
