@@ -90,14 +90,34 @@ namespace CrudLibros
                     {
                         if (!lnLibro.claveLibroRepetida(libro.ClaveLibro))
                         {
-                            if (lnLibro.insertarLibro(libro) > 0 )
+                            EAutor eAutor = new EAutor();
+                            eAutor.ClaveAutor = txtClaveAutor.Text;
+                            if (lnLibro.claveAutorExiste(eAutor))
                             {
-                                MessageBox.Show("Guardado con exito");
+
+                                if (lnLibro.claveCategoriaExiste(categoria))
+                                {
+                                    if (lnLibro.insertarLibro(libro) > 0)
+                                    {
+                                        MessageBox.Show("Guardado con exito");
+                                    }
+                                    else
+                                    {
+                                        MessageBox.Show("No existe una categoria con ese código");
+                                    }
+                                }
+                                else
+                                {
+                                    MessageBox.Show("No existe una categoria con ese código");
+                                    txtClaveCat.Focus();
+                                }
                             }
                             else
                             {
-
+                                MessageBox.Show("No existe un autor con esa clave");
+                                txtClaveAutor.Focus();
                             }
+
                         }
                         else
                         {
@@ -140,7 +160,8 @@ namespace CrudLibros
             dataGridView1.Columns[2].HeaderText = "Clave autor";
             dataGridView1.Columns[3].HeaderText = "Clave categoria";
 
-           // dataGridView1.AutoResizeColumn(DataGridViewAutoSizeColumnsMode.DisplayedCells);
+           dataGridView1.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.DisplayedCells);
+            dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         }
 
 

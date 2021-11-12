@@ -65,7 +65,7 @@ namespace AcessoDatos
             SqlCommand comandoSQL = new SqlCommand();
             SqlConnection conexionSQL = new SqlConnection(cadConexion);
             //SqlDataReader dataReader;
-            comandoSQL.CommandText = $"SELECT 1 FROM LIBRO WHERE claveLibro= @clave";
+            comandoSQL.CommandText = "SELECT 1 FROM LIBRO WHERE claveLibro= @clave";
             comandoSQL.Parameters.AddWithValue("@clave", clave);
             comandoSQL.Connection = conexionSQL;
             try
@@ -163,8 +163,73 @@ namespace AcessoDatos
             return setLibros;
         }
 
-        #region Constructores
-        
-        #endregion
+        public bool claveAutorExiste(EAutor eAutor)
+        {
+            bool result = false;
+
+            SqlCommand comandoSQL = new SqlCommand();
+
+            SqlConnection conexionSQL = new SqlConnection(cadConexion);
+
+            SqlDataReader dataReader;
+
+            comandoSQL.Connection = conexionSQL;
+
+            comandoSQL.CommandText = $"SELECT 1 FROM AUTOR WHERE claveAutor='{eAutor.ClaveAutor}'";
+
+            try
+            {
+                conexionSQL.Open();
+
+                dataReader = comandoSQL.ExecuteReader();
+
+                if(dataReader.HasRows) result = true;
+
+                conexionSQL.Close();
+            }
+            catch (Exception)
+            {
+                conexionSQL.Close();
+
+                throw new Exception("Se ha presentado un error realizando la consulta para verificar si existe un autor");
+            }
+            finally
+            {
+                comandoSQL.Dispose();
+
+                conexionSQL.Dispose();
+            } 
+            return result;
+        }
+
+        public bool claveCategoriaExiste(ECategoria eCategoria)
+        {
+            bool resultado = false;
+            object obEscalar;
+            SqlCommand comandoSQL = new SqlCommand();
+            SqlConnection conexionSQL = new SqlConnection(cadConexion);
+
+            comandoSQL.CommandText = "SELECT 1 FROM CATEGORIA WHERE claveCategoria= @claveCategoria";
+            comandoSQL.Parameters.AddWithValue("@claveCategoria", eCategoria.ClaveCategoria);
+            comandoSQL.Connection = conexionSQL;
+            try
+            {
+                conexionSQL.Open();
+                obEscalar = comandoSQL.ExecuteScalar();
+                if (obEscalar == null)  resultado = true;               
+                conexionSQL.Close();
+            }
+            catch (Exception)
+            {
+                conexionSQL.Close();
+                throw new Exception("Se ha presentado un error realizando la consulta de existencia de la categoria");
+            }
+            finally
+            {
+                comandoSQL.Dispose();
+                conexionSQL.Dispose();
+            }
+            return resultado;
+        }
     }
 }

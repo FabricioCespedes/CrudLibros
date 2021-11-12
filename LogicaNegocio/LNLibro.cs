@@ -12,11 +12,7 @@ namespace LogicaNegocio
 
         string cadConexion;
 
-        public LNLibro()
-        {
-            mensaje = string.Empty;
-            cadConexion = string.Empty;
-        }
+
 
         public LNLibro( string cadConexion)
         {
@@ -88,7 +84,7 @@ namespace LogicaNegocio
 
             try
             {
-                setLibros = listarTodos(condicion);
+                setLibros = adLibro.listarTodos(condicion);
             }
             catch (Exception ex)
             {
@@ -97,6 +93,42 @@ namespace LogicaNegocio
             }
 
             return setLibros;
+        }
+
+        public bool claveAutorExiste(EAutor eAutor)
+        {
+            bool result = false;
+
+            ADLibro adLibro = new ADLibro(cadConexion);
+
+            try
+            {
+                result = adLibro.claveAutorExiste(eAutor);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            return result;
+        }
+
+        public bool claveCategoriaExiste(ECategoria eCategoria)
+        {
+            bool resultado;
+
+            ADLibro adLibro = new ADLibro(cadConexion);
+
+            try
+            {
+                resultado = adLibro.claveCategoriaExiste(eCategoria);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+            return resultado;
         }
     }
 }
