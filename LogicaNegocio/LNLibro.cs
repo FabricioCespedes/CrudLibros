@@ -130,5 +130,79 @@ namespace LogicaNegocio
 
             return resultado;
         }
+
+        public ELibro devolverLibro(string condicion)
+        {
+            ELibro eLibro = new ELibro();
+            ADLibro aDLibro = new ADLibro(cadConexion);
+
+            try
+            {
+                eLibro = aDLibro.devolverLibro(condicion);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            return eLibro;
+        }
+
+        public int eliminar(ELibro eLibro)
+        {
+            int resultado;
+
+            ADLibro aDLibro = new ADLibro(cadConexion);
+
+            try
+            {
+                resultado = aDLibro.eliminar(eLibro);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+            return resultado;
+        }
+
+
+        public string eliminarProcedure(ELibro eLibro)
+        {
+
+            ADLibro aDLibro = new ADLibro(cadConexion);
+
+            try
+            {
+                mensaje = aDLibro.eliminarProcedure(eLibro);
+            }
+            catch (Exception ex)
+            {
+
+                mensaje = ex.Message.ToString();
+            }
+
+            return mensaje;
+        }
+
+        public int modificar(ELibro libro, string claveVieja = "")
+        {
+            int resultado;
+
+            ADLibro aDLibro = new ADLibro(cadConexion);
+
+            try
+            {
+                resultado = aDLibro.modificar(libro);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+            return resultado;
+        }
     }
 }

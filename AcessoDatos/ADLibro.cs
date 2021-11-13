@@ -231,5 +231,155 @@ namespace AcessoDatos
             }
             return resultado;
         }
+
+        public ELibro devolverLibro(string condicion)
+        {
+            ELibro eLibro= new ELibro();
+
+            ECategoria categoria = new ECategoria();
+
+            string sentencia = $"SELECT claveLibro, titulo, claveAutor, claveCategoria FROM Libro " + $" WHERE {condicion}";
+
+            SqlConnection connection = new SqlConnection(cadConexion);
+
+            SqlCommand comando = new SqlCommand(sentencia, connection);
+
+            SqlDataReader sqlDataReader;
+
+            try
+            {
+                connection.Open();
+
+                sqlDataReader = comando.ExecuteReader();
+
+                if (sqlDataReader.HasRows)
+                {
+                    sqlDataReader.Read();
+
+                    eLibro.ClaveLibro = sqlDataReader.GetString(0);
+
+                    eLibro.Titulo = sqlDataReader.GetString(1);
+
+                    eLibro.ClaveAutor = sqlDataReader.GetString(2);
+
+                    //  MEJORA: REVISAR CATEGORIA HACIENDO UN SELECT.
+                    eLibro.ClaveCategoria.ClaveCategoria = sqlDataReader.GetString(3);
+                }
+
+                connection.Close();     
+            }
+            catch (Exception)
+            {
+                connection.Close();
+                throw new Exception("No se ha encontrado el libro");
+            }
+            finally { connection.Dispose(); comando.Dispose(); }
+
+            return eLibro;
+        }
+
+        public int eliminar(ELibro eLibro)
+        {
+            int resultado = 0;
+
+            string sentecia = "Delete from libro where claveLibro = @claveLibro";
+
+
+
+            SqlConnection connection = new SqlConnection(cadConexion);
+
+            SqlCommand comando = new SqlCommand(sentecia,connection);
+
+            comando.Parameters.AddWithValue("@claveLibro", eLibro.ClaveLibro);
+
+            try
+            {
+                connection.Open();
+                resultado = comando.ExecuteNonQuery();
+                connection.Close();
+            }
+            catch (Exception)
+            {
+                resultado = -1;
+                //  throw new Exception("Se ha producido un error en eliminacion");
+            }
+            finally {
+                connection.Dispose();
+
+            }
+            return resultado;
+        }
+
+        public string eliminarProcedure(ELibro eLibro)
+        {
+
+            string sentencia = "EliminarLibro";
+            SqlConnection connection = new SqlConnection(cadConexion);
+            SqlCommand comando = new SqlCommand(sentencia,connection);
+
+            comando.CommandType = CommandType.StoredProcedure;
+            comando.Parameters.AddWithValue("@clave", eLibro.ClaveLibro);
+            comando.Parameters.Add("@msj", SqlDbType.VarChar, 100).Direction= ParameterDirection.Output;
+
+            try
+            {
+                connection.Open();
+                comando.ExecuteNonQuery();
+                mensaje = comando.Parameters["@msj"].Value.ToString();
+                connection.Close();
+            }
+            catch (Exception)
+            {
+
+                throw new Exception("Se ha producido un error en el proceso eliminar producto");
+            }finally
+            {
+                connection.Dispose();
+                comando.Dispose();
+            }
+
+            return mensaje;
+        }
+
+        public int modificar(ELibro libro, string claveVieja = "")
+        {
+            int resultado = -1;
+            string sentencia;
+            SqlConnection sqlConnection = new SqlConnection(cadConexion);
+            SqlCommand comando = new SqlCommand();
+            if (claveVieja == "")
+            {
+                sentencia = "UPDATE libro set titulo = @titulo, claveAutor = @claveAutor, claveCategoria= @claveCategoria Where claveLibro = @claveLibro";
+            }
+            else
+            {
+                sentencia = $"UPDATE libro set claveLibro = @clave; titulo = @titulo, claveAutor = @claveAutor, claveCategoria= @claveCategoria Where claveLibro = '{claveVieja}'";
+            }
+            comando.Connection = sqlConnection;
+            comando.CommandText = sentencia;
+
+            comando.Parameters.AddWithValue("clave",libro.ClaveLibro);
+            comando.Parameters.AddWithValue("titulo", libro.Titulo);
+            comando.Parameters.AddWithValue("claveAutor", libro.ClaveAutor);
+            comando.Parameters.AddWithValue("claveCategoria", libro.ClaveCategoria);
+
+            try
+            {
+                sqlConnection.Open();
+                resultado = comando.ExecuteNonQuery();
+                sqlConnection.Close();
+            }
+            catch (Exception)
+            {
+                sqlConnection.Close();
+                throw new Exception("Error al actualizar");
+            }finally
+            {
+                sqlConnection.Dispose();
+                comando.Dispose();
+            }
+
+            return resultado;
+        }
     }
 }

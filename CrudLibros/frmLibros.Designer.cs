@@ -125,7 +125,7 @@ namespace CrudLibros
             // btnNuevo
             // 
             this.btnNuevo.Font = new System.Drawing.Font("Arial", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnNuevo.Location = new System.Drawing.Point(45, 236);
+            this.btnNuevo.Location = new System.Drawing.Point(60, 236);
             this.btnNuevo.Name = "btnNuevo";
             this.btnNuevo.Size = new System.Drawing.Size(119, 47);
             this.btnNuevo.TabIndex = 8;
@@ -136,7 +136,7 @@ namespace CrudLibros
             // btnGuardar
             // 
             this.btnGuardar.Font = new System.Drawing.Font("Arial", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnGuardar.Location = new System.Drawing.Point(232, 236);
+            this.btnGuardar.Location = new System.Drawing.Point(227, 236);
             this.btnGuardar.Name = "btnGuardar";
             this.btnGuardar.Size = new System.Drawing.Size(119, 47);
             this.btnGuardar.TabIndex = 9;
@@ -146,18 +146,20 @@ namespace CrudLibros
             // 
             // btnEliminar
             // 
+            this.btnEliminar.Enabled = false;
             this.btnEliminar.Font = new System.Drawing.Font("Arial", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnEliminar.Location = new System.Drawing.Point(405, 236);
+            this.btnEliminar.Location = new System.Drawing.Point(401, 236);
             this.btnEliminar.Name = "btnEliminar";
             this.btnEliminar.Size = new System.Drawing.Size(119, 47);
             this.btnEliminar.TabIndex = 10;
             this.btnEliminar.Text = "Eliminar";
             this.btnEliminar.UseVisualStyleBackColor = true;
+            this.btnEliminar.Click += new System.EventHandler(this.btnEliminar_Click);
             // 
             // btnBuscar
             // 
             this.btnBuscar.Font = new System.Drawing.Font("Arial", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnBuscar.Location = new System.Drawing.Point(587, 236);
+            this.btnBuscar.Location = new System.Drawing.Point(598, 236);
             this.btnBuscar.Name = "btnBuscar";
             this.btnBuscar.Size = new System.Drawing.Size(119, 47);
             this.btnBuscar.TabIndex = 11;
@@ -184,6 +186,7 @@ namespace CrudLibros
             this.dataGridView1.ReadOnly = true;
             this.dataGridView1.Size = new System.Drawing.Size(842, 397);
             this.dataGridView1.TabIndex = 13;
+            this.dataGridView1.DoubleClick += new System.EventHandler(this.dataGridView1_DoubleClick);
             // 
             // frmLibros
             // 
