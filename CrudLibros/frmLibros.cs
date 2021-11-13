@@ -81,26 +81,26 @@ namespace CrudLibros
 
         private void btnGuardar_Click(object sender, EventArgs e)
         {
-            
-            if (validarTextos())
-            {
-                if (libro == null)
-                {
-                    libro = new ELibro(txtClaveLibro.Text, txtTituloLibro.Text, txtClaveAutor.Text, categoria, false);
+            lnLibro.modificar(libro,"");
+            //if (validarTextos())
+            //{
+            //    if (libro == null)
+            //    {
+            //        libro = new ELibro(txtClaveLibro.Text, txtTituloLibro.Text, txtClaveAutor.Text, categoria, false);
 
-                }
-                else
-                {
+            //    }
+            //    else
+            //    {
 
-                }
+            //    }
 
-                if (!libro.Existe)
-                {
-                    insertarLibro();
-                }
+            //    if (!libro.Existe)
+            //    {
+            //        insertarLibro();
+            //    }
                 
                 
-            }
+            //}
 
         }
 
