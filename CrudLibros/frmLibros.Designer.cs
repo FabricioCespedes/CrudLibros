@@ -165,6 +165,7 @@ namespace CrudLibros
             this.btnBuscar.TabIndex = 11;
             this.btnBuscar.Text = "Buscar";
             this.btnBuscar.UseVisualStyleBackColor = true;
+            this.btnBuscar.Click += new System.EventHandler(this.btnBuscar_Click);
             // 
             // btnSalir
             // 
@@ -192,7 +193,7 @@ namespace CrudLibros
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(947, 757);
+            this.ClientSize = new System.Drawing.Size(947, 749);
             this.Controls.Add(this.dataGridView1);
             this.Controls.Add(this.btnSalir);
             this.Controls.Add(this.btnBuscar);

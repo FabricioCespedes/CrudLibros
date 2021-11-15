@@ -81,26 +81,26 @@ namespace CrudLibros
 
         private void btnGuardar_Click(object sender, EventArgs e)
         {
-            lnLibro.modificar(libro,"");
-            //if (validarTextos())
-            //{
-            //    if (libro == null)
-            //    {
-            //        libro = new ELibro(txtClaveLibro.Text, txtTituloLibro.Text, txtClaveAutor.Text, categoria, false);
+            
+            if (validarTextos())
+            {
+                if (libro == null)
+                {
+                    libro = new ELibro(txtClaveLibro.Text, txtTituloLibro.Text, txtClaveAutor.Text, categoria, false);
 
-            //    }
-            //    else
-            //    {
+                }
+                else
+                {
+                    lnLibro.modificar(libro, "");
+                }
 
-            //    }
+                if (!libro.Existe)
+                {
+                    insertarLibro();
+                }
 
-            //    if (!libro.Existe)
-            //    {
-            //        insertarLibro();
-            //    }
-                
-                
-            //}
+
+            }
 
         }
 
@@ -247,6 +247,11 @@ namespace CrudLibros
             {
                 mensajeError(ex);
             }
+        }
+
+        private void btnBuscar_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

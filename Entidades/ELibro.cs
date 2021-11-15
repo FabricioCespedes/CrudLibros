@@ -16,6 +16,11 @@ namespace Entidades
 
         bool existe ;
 
+        public override string ToString()
+        {
+            return titulo.ToString();
+        }
+
         public ELibro()
         {
             claveLibro = string.Empty;
