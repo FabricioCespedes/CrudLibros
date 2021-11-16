@@ -37,15 +37,15 @@ namespace LogicaNegocio
         }
 
 
-        public List<ELibro> listarLibros()
+        public ELibro listarLibros(string condicion)
         {
-            List<ELibro> setLibros;
+            ELibro setLibros;
 
             ADPrestamo aDPrestamo = new ADPrestamo(cadConexion);
 
             try
             {
-                setLibros = aDPrestamo.listarLibros();
+                setLibros = aDPrestamo.listarLibros(condicion);
             }
             catch (Exception ex)
             {

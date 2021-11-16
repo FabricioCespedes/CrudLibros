@@ -5,6 +5,7 @@ using System.Text;
 
 using System.Data.SqlClient;
 using System.Data;
+using System.Linq;
 
 namespace AcessoDatos
 {
@@ -162,6 +163,53 @@ namespace AcessoDatos
 
             return setLibros;
         }
+
+        public List<ELibro> listarTodosLibrosLista(string condicion = "")
+        {
+            List<ELibro> setLibros = new List<ELibro>();
+            DataTable tabla = new DataTable();
+            string sentecia = "SELECT [claveLibro],[titulo],[claveAutor],[claveCategoria] FROM [LIBRO]";
+            if (!string.IsNullOrEmpty(condicion))
+            {
+                sentecia = string.Format("{0} where {1}", sentecia, condicion);
+
+                //sentencia = $"{sentencia} where {condicion}";
+            }
+            SqlConnection connection = new SqlConnection(cadConexion);
+            SqlDataAdapter dataAdapter;
+
+            try
+            {
+                dataAdapter = new SqlDataAdapter(sentecia, connection);
+                dataAdapter.Fill(tabla);
+
+                setLibros = (from DataRow registro in tabla.Rows
+                             select new ELibro()
+                             {
+                                 ClaveLibro = registro[0].ToString(),
+                                 Titulo = registro[1].ToString(),
+                                 ClaveAutor = registro[2].ToString(),
+                                 ClaveCategoria = new ECategoria()
+                                 {
+                                     ClaveCategoria = registro[3].ToString()
+                                 }
+                             }).ToList();
+                connection.Close();
+                dataAdapter.Dispose();
+            }
+            catch (Exception)
+            {
+                connection.Close();
+                throw new Exception("Ha ocurrido un error en la selección de libros");
+            }
+            finally
+            {
+                connection.Dispose();
+            }
+
+            return setLibros;
+        }
+
 
         public bool claveAutorExiste(EAutor eAutor)
         {
@@ -353,15 +401,15 @@ namespace AcessoDatos
             }
             else
             {
-                sentencia = $"UPDATE libro set claveLibro = @clave; titulo = @titulo, claveAutor = @claveAutor, claveCategoria= @claveCategoria Where claveLibro = '{claveVieja}'";
+                sentencia = $"UPDATE libro set claveLibro = @claveLibro, titulo = @titulo, claveAutor = @claveAutor, claveCategoria= @claveCategoria Where claveLibro = '{claveVieja}'";
             }
             comando.Connection = sqlConnection;
             comando.CommandText = sentencia;
 
-            comando.Parameters.AddWithValue("clave",libro.ClaveLibro);
-            comando.Parameters.AddWithValue("titulo", libro.Titulo);
-            comando.Parameters.AddWithValue("claveAutor", libro.ClaveAutor);
-            comando.Parameters.AddWithValue("claveCategoria", libro.ClaveCategoria);
+            comando.Parameters.AddWithValue("@claveLibro", libro.ClaveLibro);
+            comando.Parameters.AddWithValue("@titulo", libro.Titulo);
+            comando.Parameters.AddWithValue("@claveAutor", libro.ClaveAutor);
+            comando.Parameters.AddWithValue("@claveCategoria", libro.ClaveCategoria.ClaveCategoria);
 
             try
             {

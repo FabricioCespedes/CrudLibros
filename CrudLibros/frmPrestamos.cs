@@ -55,31 +55,8 @@ namespace CrudLibros
                 llenarDGVEjemplares();
                 llenarDGVUsuarios();
                 llenarDGVPrestamos();
-                llenarCBXUsuarios();
-                cbxLibros.DataSource = lNPrestamo.listarLibros();
-
-                DataTable dt = new DataTable();
-                dt.Columns.Add("Titulos");
-
-                foreach (ELibro item in lNPrestamo.listarLibros())
-                {
-                    DataRow row = dt.NewRow();
-                    row["Titulos"] = item.Titulo;
-
-                    dt.Rows.Add(row);
-
-                }
-
-                AutoCompleteStringCollection coleccion = new AutoCompleteStringCollection();
-                coleccion.Add(cbxLibros.Text);
-                foreach (DataRow row in dt.Rows)
-                {
-                    coleccion.Add(Convert.ToString(row["Titulos"]));
-                }
-                cbxLibros.AutoCompleteCustomSource = coleccion;
-                cbxLibros.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
-                cbxLibros.AutoCompleteSource = AutoCompleteSource.CustomSource;
-
+                
+               
             }
             catch (Exception ex)
             {
@@ -91,29 +68,7 @@ namespace CrudLibros
 
         }
 
-        private void cbxLibros_SelectionChangeCommitted(object sender, EventArgs e)
-        {
-
-            try
-            {
-                ELibro eLibro = new ELibro();
-
-                eLibro = (ELibro)cbxLibros.SelectedItem;
-                if (eLibro.Titulo != " ")
-                {
-                    llenarDGVEjemplares($"  L.titulo = '{eLibro.Titulo}'");
-                }
-                else
-                {
-                    llenarDGVEjemplares();
-                }
-
-            }
-            catch (Exception ex)
-            {
-                mensajeError(ex);
-            }
-        }
+        
 
 
         private void llenarDGVUsuarios(string condicion = "")
@@ -164,44 +119,7 @@ namespace CrudLibros
             dgvPrestamos.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         }
 
-        public void llenarCBXUsuarios()
-        {
-            try
-            {
-                this.cbxUsuarios.DataSource = null;
-
-                cbxUsuarios.DataSource = lNPrestamo.listarUsuarios();
-
-                DataTable dt = new DataTable();
-                dt.Columns.Add("Usuario");
-
-                foreach (EUsuario item in lNPrestamo.listarUsuarios())
-                {
-                    DataRow row = dt.NewRow();
-                    row["Usuario"] = item.Nombre + " " + item.Apellido1;
-
-                    dt.Rows.Add(row);
-
-                }
-
-                AutoCompleteStringCollection coleccion = new AutoCompleteStringCollection();
-                coleccion.Add(cbxUsuarios.Text);
-                foreach (DataRow row in dt.Rows)
-                {
-                    coleccion.Add(Convert.ToString(row["Usuario"]));
-                }
-                cbxUsuarios.AutoCompleteCustomSource = coleccion;
-                cbxUsuarios.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
-                cbxUsuarios.AutoCompleteSource = AutoCompleteSource.CustomSource;
-            }
-            catch (Exception ex)
-            {
-                mensajeError(ex);
-            }
-
-
-
-        }
+        
 
 
         private void dgvUsuarios_DoubleClick(object sender, EventArgs e)
@@ -290,28 +208,7 @@ namespace CrudLibros
             }
         }
 
-        private void cbxUsuarios_SelectionChangeCommitted(object sender, EventArgs e)
-        {
-            try
-            {
-                EUsuario eUsuario = new EUsuario();
-
-                eUsuario = (EUsuario)cbxUsuarios.SelectedItem;
-                if (eUsuario.Nombre != " ")
-                {
-                    llenarDGVUsuarios($"  claveUsuario = '{eUsuario.ClaveUsuario}'");
-                }
-                else
-                {
-                    llenarDGVUsuarios();
-                }
-
-            }
-            catch (Exception ex)
-            {
-                mensajeError(ex);
-            }
-        }
+        
 
 
         private void insertarPrestamo()
@@ -324,7 +221,7 @@ namespace CrudLibros
                     condicion = $" EST.descripcion = 'Disponible' AND E.claveEjemplar = '{txtCodigoEjemplar.Text.ToString()}' AND L.titulo = '{txtTitulo.Text.ToString()}' ";
                     if (lNPrestamo.listarEjemplares(condicion).Tables[0].Rows.Count > 0)
                     {
-                        condicion = $" U.claveUsuario = '{txtClaveUsuario.Text.ToString()}' AND P.fechaDevolucion > GETDATE(); ";
+                        condicion = $" U.claveUsuario = '{txtClaveUsuario.Text.ToString()}' AND EST.descripcion = 'Prestamo'; ";
 
                         if (lNPrestamo.listarPrestamos(condicion).Tables[0].Rows.Count == 0)
                         {
@@ -499,6 +396,66 @@ namespace CrudLibros
                 {
                     MessageBox.Show("No se ha actualizado");
                 }
+            }
+            catch (Exception ex)
+            {
+                mensajeError(ex);
+            }
+        }
+
+        private void txtBuscarLibro_TextChanged(object sender, EventArgs e)
+        {
+            string cadena = txtBuscarLibro.Text;
+
+            string condicion = $" L.titulo like '%{cadena}%'  ";
+            llenarDGVEjemplares(condicion);
+        }
+
+        private void txtBuscarUsuario_TextChanged(object sender, EventArgs e)
+        {
+            string cadena = txtBuscarUsuario.Text;
+
+            string condicion = $" nombre like '%{cadena}%' or apPaterno like '%{cadena}%' ";
+            llenarDGVUsuarios(condicion);
+        }
+
+        private void btnDevolucion_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                
+                if (validarTextos())
+                {
+                    string condicion = $" P.clavePrestamo= '{txtPrestamo.Text.ToString()}' ";
+                    if (lNPrestamo.listarPrestamos(condicion).Tables[0].Rows.Count == 1) // Validar si el codigo de prestamo existe
+                    {
+                        condicion = $" EST.descripcion = 'Prestamo' AND E.claveEjemplar = '{txtCodigoEjemplar.Text.ToString()}' AND L.titulo = '{txtTitulo.Text.ToString()}' ";
+
+                        // Validar si el libro esta prestado
+                        if (lNPrestamo.listarEjemplares(condicion).Tables[0].Rows.Count > 0) 
+                        {
+
+                            condicion = $" e.claveEjemplar = '{txtCodigoEjemplar.Text}' AND l.titulo = '{txtTitulo.Text}' ";
+
+                            ELibro libro = lNPrestamo.listarLibros(condicion);
+
+                            
+
+                        }
+                        else
+                        {
+                            MessageBox.Show("El ejemplar seleccionado esta disponible");
+                            txtCodigoEjemplar.Focus();
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("El codigo del prestamo no existe");
+                        txtPrestamo.Focus();
+                    }
+
+                }
+
             }
             catch (Exception ex)
             {

@@ -194,7 +194,7 @@ namespace LogicaNegocio
 
             try
             {
-                resultado = aDLibro.modificar(libro);
+                resultado = aDLibro.modificar(libro,claveVieja);
             }
             catch (Exception ex)
             {

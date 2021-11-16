@@ -10,7 +10,7 @@ namespace CrudLibros
     {
         public static string getCadenaConexion
         {
-            get { return Properties.Settings.Default.CadenaConexion; }
+            get { return Properties.Settings.Default.CadenaConexionINA; }
         }
 
     }

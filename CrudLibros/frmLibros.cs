@@ -81,7 +81,10 @@ namespace CrudLibros
 
         private void btnGuardar_Click(object sender, EventArgs e)
         {
-            
+
+            string clave = "";
+            string titulo = "";
+            string autor = "";
             if (validarTextos())
             {
                 if (libro == null)
@@ -91,17 +94,104 @@ namespace CrudLibros
                 }
                 else
                 {
-                    lnLibro.modificar(libro, "");
+                    // 
+                    if(revisarCambios(ref clave, ref titulo, ref autor))
+                    {
+                        libro.ClaveLibro = txtClaveLibro.Text;
+                        libro.Titulo = txtTituloLibro.Text;
+                        libro.ClaveAutor = txtClaveAutor.Text;
+                        libro.ClaveCategoria.ClaveCategoria = txtClaveCat.Text;
+
+                    }
                 }
 
                 if (!libro.Existe)
                 {
                     insertarLibro();
                 }
+                else
+                {//Update
+                    if (string.IsNullOrEmpty(clave) == false)
+                    {
+                        if (lnLibro.claveLibroRepetida(libro.ClaveLibro) == false)
+                        {
+                            revisionDeCambiosEnTitulos(clave,autor,titulo);
+                            
+                        }
+                        else
+                        {
+                            MessageBox.Show("Error la clave que esta intentado actualizar ya existe");
+                            txtClaveLibro.Focus();
+                        }
+                    }
+                    else
+                    {
+                        revisionDeCambiosEnTitulos("", autor, titulo);
+                    }
+
+                }
 
 
             }
 
+        }
+
+        private void revisionDeCambiosEnTitulos(string clave, string autor, string titulo)
+        {
+            if (!string.IsNullOrEmpty(titulo) || !string.IsNullOrEmpty(autor))
+            {
+                if (lnLibro.libroRepetido(libro) == false)
+                {
+
+                    hacerModificacion(clave);
+                }
+                else
+                {
+                    MessageBox.Show("El libro esta repitido");
+                }
+
+            }
+            else
+            {
+                hacerModificacion(clave);
+            }
+        }
+
+        private void hacerModificacion(string clave)
+        {
+            if (lnLibro.modificar(libro, clave) > 0)
+            {
+                MessageBox.Show("Actualizacion realizada");
+                limpiar();
+            }
+            else
+            {
+                MessageBox.Show("Actualizacion no realizada");
+            }
+        }
+
+        private bool revisarCambios(ref string clave, ref string titulo, ref string autor)
+        {
+            bool resul = false;
+
+            if(txtClaveLibro.Text != libro.ClaveLibro)
+            {
+                resul = true;
+                clave = libro.ClaveLibro; // Clave vieja
+            }
+            if (txtTituloLibro.Text != libro.Titulo)
+            {
+                resul = true;
+                titulo = libro.Titulo; // Clave vieja
+            }
+            if (txtClaveAutor.Text != libro.ClaveAutor)
+            {
+                resul = true;
+                autor = libro.ClaveAutor; // Clave vieja
+            }
+
+
+            return resul;
         }
 
         private void insertarLibro()

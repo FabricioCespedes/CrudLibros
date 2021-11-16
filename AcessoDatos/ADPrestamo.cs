@@ -57,12 +57,16 @@ namespace AcessoDatos
             return setEjemplares;
         }
 
-        public List<ELibro> listarLibros()
+        public ELibro listarLibros(string condicion)
         {
-            List<ELibro> setLibros = new List<ELibro>();
-            string sentecia = "SELECT ' ' UNION SELECT[titulo] FROM [LIBRO]";
+            ELibro eLibro = new ELibro();
+            string sentecia = " SELECT l.claveLibro, l.titulo FROM LIBRO L JOIN EJEMPLAR E ON l.claveLibro = e.claveLibro ";
             SqlConnection connection = new SqlConnection(cadConexion);
+            if (!string.IsNullOrEmpty(condicion))
+            {
+                sentecia = string.Format("{0} where {1}", sentecia, condicion);
 
+            }
             try
             {
                 connection.Open();
@@ -73,11 +77,10 @@ namespace AcessoDatos
                 {
                     while (registro.Read())
                     {
-                        ELibro eLibro = new ELibro();
+                       
 
-                        eLibro.Titulo = registro.GetString(0);
-
-                        setLibros.Add(eLibro);
+                        eLibro.ClaveLibro = registro.GetString(0);
+                        eLibro.Titulo = registro.GetString(1);
                     }
                 }
 
@@ -93,13 +96,13 @@ namespace AcessoDatos
                 connection.Dispose();
             }
 
-            return setLibros;
+            return eLibro;
         }
 
         public List<EUsuario> listarUsuarios(string condicion = "")
         {
             List<EUsuario> setUsuarios = new List<EUsuario>();
-            string sentecia = " SELECT claveUsuario, nombre, apPaterno AS Usuario FROM Usuario";
+            string sentecia = " SELECT claveUsuario, nombre, apPaterno AS Usuario FROM Usuario ";
             if (!string.IsNullOrEmpty(condicion))
             {
                 sentecia = string.Format("{0} where {1}", sentecia, condicion);
@@ -145,7 +148,7 @@ namespace AcessoDatos
         public DataSet listarPrestamos(string condicion = "")
         {
             DataSet setPrestamos = new DataSet();
-            string sentecia = " SELECT P.clavePrestamo,U.claveUsuario ,(U.nombre + ' ' + U.apPaterno) AS Usuario, E.claveEjemplar, L.titulo, P.fechaDevolucion, p.fechaPrestamo FROM PRESTAMO P JOIN USUARIO U ON P.claveUsuario = U.claveUsuario JOIN Ejemplar E ON E.claveEjemplar = P.claveEjemplar JOIN Libro L ON L.claveLibro = E.claveLibro";
+            string sentecia = " SELECT P.clavePrestamo,U.claveUsuario ,(U.nombre + ' ' + U.apPaterno) AS Usuario, E.claveEjemplar, L.titulo, P.fechaDevolucion, p.fechaPrestamo FROM PRESTAMO P JOIN USUARIO U ON P.claveUsuario = U.claveUsuario JOIN Ejemplar E ON E.claveEjemplar = P.claveEjemplar JOIN Libro L ON L.claveLibro = E.claveLibro JOIN Estado EST ON e.claveEstado =  est.claveEstado ";
             if (!string.IsNullOrEmpty(condicion))
             {
                 sentecia = string.Format("{0} where {1}", sentecia, condicion);
@@ -184,8 +187,8 @@ namespace AcessoDatos
             comando.Parameters.AddWithValue("@clavePrestamo", ePrestamo.ClavePrestamo);
             comando.Parameters.AddWithValue("@claveEjemplar", ePrestamo.EEjemplar.ClaveEjemplar);
             comando.Parameters.AddWithValue("@claveUsuario", ePrestamo.EUsuario.ClaveUsuario);
-            comando.Parameters.AddWithValue("@fechaPrestamo", ePrestamo.FechaPrestamo.ToString("yyyy-mm-dd"));
-            comando.Parameters.AddWithValue("@fechaDevolucion", ePrestamo.FechaDevolucion.ToString("yyyy-mm-dd"));
+            comando.Parameters.AddWithValue("@fechaPrestamo", ePrestamo.FechaPrestamo.ToString("yyyy-MM-dd"));
+            comando.Parameters.AddWithValue("@fechaDevolucion", ePrestamo.FechaDevolucion.ToString("yyyy-MM-dd"));
             try
             {
                 conexion.Open();
@@ -240,6 +243,51 @@ namespace AcessoDatos
             string sentencia;
             SqlConnection sqlConnection = new SqlConnection(cadConexion);
             SqlCommand comando = new SqlCommand();
+
+           if (claveVieja == "")
+            {
+                sentencia = "UPDATE Prestamo set claveEjemplar = @claveEjemplar, claveUsuario = @claveUsuario, fechaPrestamo= @fechaPrestamo, fechaDevolucion= @fechaDevolucion Where clavePrestamo = @clavePrestamo";
+            }
+            else
+            {
+                sentencia = $"UPDATE Prestamo set clavePrestamo= @clavePrestamo,claveEjemplar = @claveEjemplar, claveUsuario = @claveUsuario, fechaPrestamo= @fechaPrestamo, fechaDevolucion= @fechaDevolucion Where clavePrestamo = '{claveVieja}'";
+            }
+            comando.Connection = sqlConnection;
+            comando.CommandText = sentencia;
+
+            comando.Parameters.AddWithValue("@clavePrestamo", ePrestamo.ClavePrestamo);
+            comando.Parameters.AddWithValue("@claveEjemplar", ePrestamo.EEjemplar.ClaveEjemplar);
+            comando.Parameters.AddWithValue("@claveUsuario", ePrestamo.EUsuario.ClaveUsuario);
+            comando.Parameters.AddWithValue("@fechaPrestamo", ePrestamo.FechaPrestamo.ToString("yyyy-MM-dd"));
+            comando.Parameters.AddWithValue("@fechaDevolucion", ePrestamo.FechaDevolucion.ToString("yyyy-MM-dd"));
+
+            try
+            {
+                sqlConnection.Open();
+                resultado = comando.ExecuteNonQuery();
+                sqlConnection.Close();
+            }
+            catch (Exception)
+            {
+                sqlConnection.Close();
+                throw new Exception("Error al actualizar");
+            }
+            finally
+            {
+                sqlConnection.Dispose();
+                comando.Dispose();
+            }
+
+            return resultado;
+        }
+
+        public int devolverPrestamo(EPrestamo ePrestamo, string claveVieja = "")
+        {
+            int resultado = -1;
+            string sentencia;
+            SqlConnection sqlConnection = new SqlConnection(cadConexion);
+            SqlCommand comando = new SqlCommand();
+
             if (claveVieja == "")
             {
                 sentencia = "UPDATE Prestamo set claveEjemplar = @claveEjemplar, claveUsuario = @claveUsuario, fechaPrestamo= @fechaPrestamo, fechaDevolucion= @fechaDevolucion Where clavePrestamo = @clavePrestamo";
@@ -252,10 +300,10 @@ namespace AcessoDatos
             comando.CommandText = sentencia;
 
             comando.Parameters.AddWithValue("@clavePrestamo", ePrestamo.ClavePrestamo);
-            comando.Parameters.AddWithValue("@claveEjemplar,", ePrestamo.EEjemplar.ClaveEjemplar);
+            comando.Parameters.AddWithValue("@claveEjemplar", ePrestamo.EEjemplar.ClaveEjemplar);
             comando.Parameters.AddWithValue("@claveUsuario", ePrestamo.EUsuario.ClaveUsuario);
-            comando.Parameters.AddWithValue("@fechaPrestamo", ePrestamo.FechaPrestamo.ToString("yyyy-mm-dd"));
-            comando.Parameters.AddWithValue("@fechaDevolucion", ePrestamo.FechaDevolucion.ToString("yyyy-mm-dd"));
+            comando.Parameters.AddWithValue("@fechaPrestamo", ePrestamo.FechaPrestamo.ToString("yyyy-MM-dd"));
+            comando.Parameters.AddWithValue("@fechaDevolucion", ePrestamo.FechaDevolucion.ToString("yyyy-MM-dd"));
 
             try
             {
