@@ -16,7 +16,7 @@ namespace CrudLibros
     {
         LNPrestamo lNPrestamo = new LNPrestamo(Config.getCadenaConexion);
 
-        EPrestamo ePrestamo = new EPrestamo();
+        EPrestamo ePrestamo;
         public frmPrestamos()
         {
             InitializeComponent();
@@ -196,6 +196,20 @@ namespace CrudLibros
                     dtpDevolucion.Value = Convert.ToDateTime(dgvPrestamos[5, indiceFila].Value);
 
                     dtpPrestamo.Value = Convert.ToDateTime(dgvPrestamos[6, indiceFila].Value);
+
+                    EEjemplar eEjemplar = new EEjemplar();
+                    eEjemplar.ClaveEjemplar = txtCodigoEjemplar.Text.ToString();
+                    ePrestamo = new EPrestamo();
+
+                    EUsuario eUsuario = new EUsuario();
+                    eUsuario.ClaveUsuario = txtClaveUsuario.Text.ToString();
+                    ePrestamo.ClavePrestamo = txtPrestamo.Text.ToString();
+                    ePrestamo.EUsuario = eUsuario;
+                    ePrestamo.EEjemplar = eEjemplar;
+                    ePrestamo.FechaDevolucion = dtpDevolucion.Value;
+                    ePrestamo.FechaPrestamo = dtpPrestamo.Value;
+
+
                     btnEliminar.Enabled = true;
                     btnActualizar.Enabled = true;
                 }
@@ -208,9 +222,7 @@ namespace CrudLibros
             }
         }
 
-        
-
-
+ 
         private void insertarPrestamo()
         {
             try
@@ -231,6 +243,7 @@ namespace CrudLibros
                                 condicion = $" claveUsuario= '{txtClaveUsuario.Text.ToString()}' ";
                                 if (lNPrestamo.listarUsuarios(condicion).Count > 0)
                                 {
+                                    ePrestamo = new EPrestamo();
                                     EEjemplar eEjemplar = new EEjemplar();
                                     eEjemplar.ClaveEjemplar = txtCodigoEjemplar.Text.ToString();
                                     EUsuario eUsuario = new EUsuario();
@@ -244,6 +257,9 @@ namespace CrudLibros
                                     if (num != 0 )
                                     {
                                         MessageBox.Show("Guardado con exito");
+                                        limpiarCampos();
+                                        llenarDGVPrestamos();
+                                        ePrestamo = null;
                                     }
                                     else
                                     {
@@ -327,6 +343,10 @@ namespace CrudLibros
                 if (num != 0)
                 {
                     MessageBox.Show("Eliminado con exito");
+                    limpiarCampos();
+                    llenarDGVPrestamos();
+                    btnActualizar.Enabled = false;
+                    btnEliminar.Enabled = false;
                 }
                 else
                 {
@@ -369,33 +389,58 @@ namespace CrudLibros
             return resultado;
         }
 
+
+        // Actualizar
         private void btnActualizar_Click(object sender, EventArgs e)
         {
             try
             {
-                int num = 0;
+                string clavePrestamo = "";
+                string codigoEjemplar = "";
+                string claveUsuario = "";
+                DateTime fechaDevolucion = new DateTime();
+                DateTime fechaPrestamo = new DateTime();
+
                 if (validarTextos())
                 {
+                    if (revisarCambios(ref clavePrestamo, ref codigoEjemplar, ref claveUsuario, ref fechaDevolucion, ref fechaPrestamo))
+                    {
+                        EEjemplar eEjemplar = new EEjemplar();
+                        eEjemplar.ClaveEjemplar = txtCodigoEjemplar.Text.ToString();
+                        EUsuario eUsuario = new EUsuario();
+                        eUsuario.ClaveUsuario = txtClaveUsuario.Text.ToString();
+                        ePrestamo.ClavePrestamo = txtPrestamo.Text.ToString();
+                        ePrestamo.EUsuario = eUsuario;
+                        ePrestamo.EEjemplar = eEjemplar;
+                        ePrestamo.FechaDevolucion = dtpDevolucion.Value;
+                        ePrestamo.FechaPrestamo = dtpPrestamo.Value;
 
-                    EEjemplar eEjemplar = new EEjemplar();
-                    eEjemplar.ClaveEjemplar = txtCodigoEjemplar.Text.ToString();
-                    EUsuario eUsuario = new EUsuario();
-                    eUsuario.ClaveUsuario = txtClaveUsuario.Text.ToString();
-                    ePrestamo.ClavePrestamo = txtPrestamo.Text.ToString();
-                    ePrestamo.EUsuario = eUsuario;
-                    ePrestamo.EEjemplar = eEjemplar;
-                    ePrestamo.FechaDevolucion = dtpDevolucion.Value;
-                    ePrestamo.FechaPrestamo = dtpPrestamo.Value;
-                    num =  lNPrestamo.modificar(ePrestamo);
+                        if (string.IsNullOrEmpty(clavePrestamo) == false)
+                        {
+                            string condicion = $" P.clavePrestamo= '{ePrestamo.ClavePrestamo}' ";
+                            if (lNPrestamo.listarPrestamos(condicion).Tables[0].Rows.Count == 0)
+                            {
+                                revisarCodigoEjemplar(clavePrestamo, codigoEjemplar, claveUsuario, fechaPrestamo, fechaDevolucion);
+                            }
+                            else
+                            {
+                                MessageBox.Show("Error la clave que esta intentado actualizar ya es utilizada");
+                                txtPrestamo.Focus();
+                            }
+                        }
+                        else
+                        {
+                            revisarCodigoEjemplar("", codigoEjemplar, claveUsuario, fechaPrestamo, fechaDevolucion);
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("No ha realizado ningun cambio");
+
+                    }
+
                 }
-                if (num != 0)
-                {
-                    MessageBox.Show("Actualizado con exito");
-                }
-                else
-                {
-                    MessageBox.Show("No se ha actualizado");
-                }
+
             }
             catch (Exception ex)
             {
@@ -403,6 +448,119 @@ namespace CrudLibros
             }
         }
 
+        private void revisarCodigoEjemplar(string clavePrestamo, string codigoEjemplar, string claveUsuario, DateTime fechaPrestamo, DateTime fechaDevolucion)
+        {
+
+            if (!string.IsNullOrEmpty(codigoEjemplar) )
+            {
+                string condicion = $" EST.descripcion = 'Disponible' AND E.claveEjemplar = '{ePrestamo.EEjemplar.ClaveEjemplar}' AND L.titulo = '{txtTitulo.Text.ToString()}' ";
+                if (lNPrestamo.listarEjemplares(condicion).Tables[0].Rows.Count > 0)
+                {
+                    revisarClaveUsuario(clavePrestamo, codigoEjemplar, claveUsuario, fechaPrestamo, fechaDevolucion);
+
+                }
+                else
+                {
+                    MessageBox.Show("El ejemplar seleccionado no esta disponible");
+                    txtCodigoEjemplar.Focus();
+                }
+            }
+            else
+            {
+                revisarClaveUsuario(clavePrestamo, codigoEjemplar, claveUsuario, fechaPrestamo, fechaDevolucion);
+            }
+
+        }
+
+        //**********
+        private void revisarClaveUsuario(string clavePrestamo, string codigoEjemplar, string claveUsuario, DateTime fechaPrestamo, DateTime fechaDevolucion)
+        {
+            int num=0;
+            if (!string.IsNullOrEmpty(claveUsuario))
+            {
+                string condicion = $" claveUsuario= '{ePrestamo.EUsuario.ClaveUsuario}' ";
+                if (lNPrestamo.listarUsuarios(condicion).Count > 0)
+                {
+                    if (clavePrestamo != "")
+                    {
+                        num = lNPrestamo.modificar(ePrestamo, clavePrestamo);
+
+                    }
+                    else
+                    {
+                        num = lNPrestamo.modificar(ePrestamo);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("No existe un usuario con ese codigo");
+                }
+            }
+            else
+            {
+                if (clavePrestamo != "")
+                {
+                    num = lNPrestamo.modificar(ePrestamo, clavePrestamo);
+
+                }
+                else
+                {
+                    num = lNPrestamo.modificar(ePrestamo);
+                }
+
+            }
+
+            if (num != 0)
+            {
+                MessageBox.Show("Actualizado con exito");
+                llenarDGVPrestamos();
+                limpiarCampos();
+                btnActualizar.Enabled = false;
+                btnEliminar.Enabled = false;
+                  
+            }
+            else
+            {
+                MessageBox.Show("No se ha actualizado");
+            }
+            
+        }
+
+        private bool revisarCambios(ref string clavePrestamo, ref string codigoEjemplar, ref string claveUsuario, ref DateTime fechaDevolucion, ref DateTime fechaPrestamo)
+        {
+            bool resul = false;
+
+            if (txtPrestamo.Text != ePrestamo.ClavePrestamo)
+            {
+                resul = true;
+                clavePrestamo = ePrestamo.ClavePrestamo; // Clave vieja
+            }
+            if (txtCodigoEjemplar.Text != ePrestamo.EEjemplar.ClaveEjemplar)
+            {
+                resul = true;
+                codigoEjemplar = ePrestamo.EEjemplar.ClaveEjemplar; 
+            }
+            if (txtClaveUsuario.Text != ePrestamo.EUsuario.ClaveUsuario)
+            {
+                resul = true;
+                claveUsuario = ePrestamo.EUsuario.ClaveUsuario; 
+            }
+            if (dtpDevolucion.Value != ePrestamo.FechaDevolucion)
+            {
+                resul = true;
+                fechaDevolucion = ePrestamo.FechaDevolucion;
+            }
+            if (dtpPrestamo.Value != ePrestamo.FechaPrestamo)
+            {
+                resul = true;
+                fechaPrestamo = ePrestamo.FechaPrestamo;
+            }
+
+
+            return resul;
+        }
+
+        // Buscador
         private void txtBuscarLibro_TextChanged(object sender, EventArgs e)
         {
             string cadena = txtBuscarLibro.Text;
@@ -411,6 +569,7 @@ namespace CrudLibros
             llenarDGVEjemplares(condicion);
         }
 
+        // Buscador
         private void txtBuscarUsuario_TextChanged(object sender, EventArgs e)
         {
             string cadena = txtBuscarUsuario.Text;
@@ -419,6 +578,7 @@ namespace CrudLibros
             llenarDGVUsuarios(condicion);
         }
 
+        // Devolucion
         private void btnDevolucion_Click(object sender, EventArgs e)
         {
             try
@@ -438,8 +598,21 @@ namespace CrudLibros
                             condicion = $" e.claveEjemplar = '{txtCodigoEjemplar.Text}' AND l.titulo = '{txtTitulo.Text}' ";
 
                             ELibro libro = lNPrestamo.listarLibros(condicion);
+                            EEjemplar eEjemplar = new EEjemplar();
+                            eEjemplar.ClaveEjemplar = txtCodigoEjemplar.Text;
+                            eEjemplar.ELibro= libro;
+                            int num = lNPrestamo.devolverPrestamo(eEjemplar);
 
-                            
+                            if (num != 0)
+                            {
+                                MessageBox.Show("Devolucion con exito");
+                                llenarDGVEjemplares();
+                            }
+                            else
+                            {
+                                MessageBox.Show("No se ha devuelto");
+                            }
+
 
                         }
                         else

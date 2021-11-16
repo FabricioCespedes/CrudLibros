@@ -37,24 +37,7 @@ namespace LogicaNegocio
         }
 
 
-        public ELibro listarLibros(string condicion)
-        {
-            ELibro setLibros;
 
-            ADPrestamo aDPrestamo = new ADPrestamo(cadConexion);
-
-            try
-            {
-                setLibros = aDPrestamo.listarLibros(condicion);
-            }
-            catch (Exception ex)
-            {
-
-                throw ex;
-            }
-
-            return setLibros;
-        }
 
         public List<EUsuario> listarUsuarios(string condicion = "")
         {
@@ -139,7 +122,7 @@ namespace LogicaNegocio
 
             try
             {
-                resultado = aDPrestamo.modificar(ePrestamo);
+                resultado = aDPrestamo.modificar(ePrestamo,claveVieja);
             }
             catch (Exception ex)
             {
@@ -148,6 +131,45 @@ namespace LogicaNegocio
             }
 
             return resultado;
+        }
+
+
+        public int devolverPrestamo(EEjemplar eEjemplar)
+        {
+            int resultado;
+
+            ADPrestamo aDPrestamo = new ADPrestamo(cadConexion);
+
+            try
+            {
+                resultado = aDPrestamo.devolverPrestamo(eEjemplar);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+            return resultado;
+        }
+
+        public ELibro listarLibros(string condicion)
+        {
+            ELibro setLibros;
+
+            ADPrestamo aDPrestamo = new ADPrestamo(cadConexion);
+
+            try
+            {
+                setLibros = aDPrestamo.listarLibros(condicion);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+            return setLibros;
         }
     }
 }

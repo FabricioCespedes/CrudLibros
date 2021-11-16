@@ -281,30 +281,18 @@ namespace AcessoDatos
             return resultado;
         }
 
-        public int devolverPrestamo(EPrestamo ePrestamo, string claveVieja = "")
+        public int devolverPrestamo(EEjemplar eEjemplar)
         {
             int resultado = -1;
             string sentencia;
             SqlConnection sqlConnection = new SqlConnection(cadConexion);
             SqlCommand comando = new SqlCommand();
 
-            if (claveVieja == "")
-            {
-                sentencia = "UPDATE Prestamo set claveEjemplar = @claveEjemplar, claveUsuario = @claveUsuario, fechaPrestamo= @fechaPrestamo, fechaDevolucion= @fechaDevolucion Where clavePrestamo = @clavePrestamo";
-            }
-            else
-            {
-                sentencia = $"UPDATE Prestamo set clavePrestamo= @clavePrestamo,claveEjemplar = @claveEjemplar, claveUsuario = @claveUsuario, fechaPrestamo= @fechaPrestamo, fechaDevolucion= @fechaDevolucion Where clavePrestamo = '{claveVieja}'";
-            }
+            sentencia = "UPDATE EJEMPLAR SET claveEstado = 'ES003' WHERE claveEjemplar = @claveEjemplar AND claveLibro= @claveLibro";
             comando.Connection = sqlConnection;
             comando.CommandText = sentencia;
-
-            comando.Parameters.AddWithValue("@clavePrestamo", ePrestamo.ClavePrestamo);
-            comando.Parameters.AddWithValue("@claveEjemplar", ePrestamo.EEjemplar.ClaveEjemplar);
-            comando.Parameters.AddWithValue("@claveUsuario", ePrestamo.EUsuario.ClaveUsuario);
-            comando.Parameters.AddWithValue("@fechaPrestamo", ePrestamo.FechaPrestamo.ToString("yyyy-MM-dd"));
-            comando.Parameters.AddWithValue("@fechaDevolucion", ePrestamo.FechaDevolucion.ToString("yyyy-MM-dd"));
-
+            comando.Parameters.AddWithValue("@claveEjemplar", eEjemplar.ClaveEjemplar);
+            comando.Parameters.AddWithValue("@claveLibro", eEjemplar.ELibro.ClaveLibro);
             try
             {
                 sqlConnection.Open();
@@ -314,7 +302,7 @@ namespace AcessoDatos
             catch (Exception)
             {
                 sqlConnection.Close();
-                throw new Exception("Error al actualizar");
+                throw new Exception("Error en la devolucion del prestamo");
             }
             finally
             {
@@ -324,5 +312,7 @@ namespace AcessoDatos
 
             return resultado;
         }
+
+
     }
 }
